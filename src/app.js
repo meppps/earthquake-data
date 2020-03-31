@@ -48,9 +48,21 @@ d3.json(url, (data)=>{
   }
 
 })
+
+function getColor(d) {
+  return d > 7 ? 'red' :
+         d > 6  ? 'red' :
+         d > 5  ? 'orange' :
+         d > 4  ? 'yellow' :
+         d > 3   ? 'lightgreen' :
+         d > 2   ? 'green' :
+         d > 1   ? '#ffeda0' :
+         d < 1   ? 'green' :
+                    '#FFFFFF';
+}
 // .addTo(myMap);
 
-console.log(data.features[0].geometry.coordinates)
+console.log(data.features[0].properties.mag)
 // function onEachFeature(feature, layer) {
 //   layer.bindPopup("<h3>" + "</h3><hr><p>"+ "</p>");
 // }
@@ -64,13 +76,18 @@ var features = data.features;
 for(i=0;i<features.length;i++){
   // console.log(features[i])
   var coords = data.features[i].geometry.coordinates;
+  var mag = data.features[i].properties.mag;
+  console.log(mag*500);
+
   // L.geoJSON(features[i]).addTo(myMap);
   var circle = L.circle([coords[1],coords[0]],{
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.5,
-    radius: 500
-  }).addTo(myMap);
+    color: getColor(mag),
+    fillColor: getColor(mag),
+    fillOpacity: 0.75,
+    radius: mag*12000
+  }).addTo(myMap).on('click',()=>{
+    console.log(this)
+  })
 }
 
 // L.geoJSON(data.features).addTo(myMap)
