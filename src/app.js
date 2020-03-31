@@ -9,7 +9,7 @@ var myMap = L.map("map", {
 });
 
 // Adding tile layer to the map
-L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+var layer = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
   attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
   maxZoom: 18,
   id: "mapbox.light",
@@ -18,7 +18,8 @@ L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 
 
 // Load data
-var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson';
+// var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson';
+var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson';
 
 // d3.json(url , function(data){
 //   console.log(data)
@@ -46,6 +47,34 @@ d3.json(url, (data)=>{
        fillOpacity: 0.8 
   }
 
-}).addTo(myMap);
+})
+// .addTo(myMap);
+
+console.log(data.features[0].geometry.coordinates)
+// function onEachFeature(feature, layer) {
+//   layer.bindPopup("<h3>" + "</h3><hr><p>"+ "</p>");
+// }
+
+// var earthquakes = L.geoJSON(data,{
+//   onEachFeature: onEachFeature
+// });
+
+var features = data.features;
+
+for(i=0;i<features.length;i++){
+  // console.log(features[i])
+  var coords = data.features[i].geometry.coordinates;
+  // L.geoJSON(features[i]).addTo(myMap);
+  var circle = L.circle([coords[1],coords[0]],{
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: 500
+  }).addTo(myMap);
+}
+
+// L.geoJSON(data.features).addTo(myMap)
+
+
 
 });
