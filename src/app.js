@@ -18,79 +18,67 @@ var layer = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?ac
 
 
 // Load data
-// var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson';
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson';
 
-// d3.json(url , function(data){
-//   console.log(data)
-// })
+
 
 d3.json(url, (data)=>{
+  
   console.log(data.features);
 
-  var geojson = L.choropleth(data,{
-     // Define what  property in the features to use
-     valueProperty: "mag",
+  // Color scale
+  function getColor(d) {
+    return d > 7 ? 'red' :
+          d > 6  ? 'red' :
+          d > 5  ? 'orange' :
+          d > 4  ? 'yellow' :
+          d > 3   ? 'lightgreen' :
+          d > 2   ? 'green' :
+          d > 1   ? '#ffeda0' :
+          d < 1   ? 'green' :
+                      '#FFFFFF';
+  };
 
-     // Set color scale
-     scale: ["#ffffb2", "#b10026"],
- 
-     // Number of breaks in step range
-     steps: 10,
- 
-     // q for quartile, e for equidistant, k for k-means
-     mode: "q",
-     style: {
-       // Border color
-       color: "#fff",
-       weight: 1,
-       fillOpacity: 0.8 
+
+  console.log(data.features[0].properties.mag)
+
+
+  var features = data.features;
+
+  // Loop through features
+  for(i=0;i<features.length;i++){
+
+    // Data
+    var coords = data.features[i].geometry.coordinates;
+    var mag = data.features[i].properties.mag;
+    var place =  data.features[i].properties.place;
+    var felt = data.features[i].properties.felt;
+    var alert = data.features[i].properties.alert;
+
+
+    const capitalize = (s) => {
+      if (typeof s !== 'string') return ''
+      return s.charAt(0).toUpperCase() + s.slice(1)
+    }
+    
+    // Add circle and tooltip
+    var circle = L.circle([coords[1],coords[0]],{
+      color: getColor(mag),
+      fillColor: getColor(mag),
+      fillOpacity: 0.75,
+      radius: mag*12000,
+
+    }).bindTooltip(`
+    <h3>Location: ${place}</h3>
+    <h4>Magnitude: ${mag}</h4>
+    <h4>Felt Earthquake: ${felt}</h4>
+    <h4>Alert Level: <span style="color:${alert}">${capitalize(alert)}</span></h4>`,
+    {className: 'tooltip'})
+    .openTooltip()
+    .addTo(myMap);
+
   }
 
-})
-
-function getColor(d) {
-  return d > 7 ? 'red' :
-         d > 6  ? 'red' :
-         d > 5  ? 'orange' :
-         d > 4  ? 'yellow' :
-         d > 3   ? 'lightgreen' :
-         d > 2   ? 'green' :
-         d > 1   ? '#ffeda0' :
-         d < 1   ? 'green' :
-                    '#FFFFFF';
-}
-// .addTo(myMap);
-
-console.log(data.features[0].properties.mag)
-// function onEachFeature(feature, layer) {
-//   layer.bindPopup("<h3>" + "</h3><hr><p>"+ "</p>");
-// }
-
-// var earthquakes = L.geoJSON(data,{
-//   onEachFeature: onEachFeature
-// });
-
-var features = data.features;
-
-for(i=0;i<features.length;i++){
-  // console.log(features[i])
-  var coords = data.features[i].geometry.coordinates;
-  var mag = data.features[i].properties.mag;
-  console.log(mag*500);
-
-  // L.geoJSON(features[i]).addTo(myMap);
-  var circle = L.circle([coords[1],coords[0]],{
-    color: getColor(mag),
-    fillColor: getColor(mag),
-    fillOpacity: 0.75,
-    radius: mag*12000
-  }).addTo(myMap).on('click',()=>{
-    console.log(this)
-  })
-}
-
-// L.geoJSON(data.features).addTo(myMap)
 
 
 
